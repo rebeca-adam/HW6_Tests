@@ -1,0 +1,175 @@
+---
+title: "Homework 5 Modules"
+author: "Rebeca Adam, Natasha Atkins, Elijah Khan"
+format: html
+editor: visual
+---
+
+## Data Generation Function
+
+```{r}
+#' Create Neighborhood Data
+#' This function creates example neighborhood data for testing the flood, vulnerability, insurance retreat, and priority classification modules
+#' @param n number of neighborhoods to create
+#' @return data frame with neighborhood risk variables
+
+create_neighborhood_data = function(n = 26) {
+  neighborhood_data = data.frame(
+    city = letters[1:n],
+    elevation = runif(n, min = 0, max = 3000),
+    distance_coast = runif(n, min = 0, max = 1000),
+    mean_rain = runif(n, min = 0, max = 300),
+    num_past_floods = runif(n, min = 0, max = 200),
+    low_inc = runif(n, min = 0, max = 1),
+    minority = runif(n, min = 0, max = 1),
+    no_insurance = runif(n, min = 0, max = 1),
+    renters = runif(n, min = 0, max = 1),
+    elderly = runif(n, min = 0, max = 1),
+    children = runif(n, min = 0, max = 1),
+    disabled = runif(n, min = 0, max = 1),
+    percent_nonrenewal = runif(n, min = 0, max = 1),
+    premium_increase = runif(n, min = 0, max = 1),
+    past_claims = runif(n, min = 0, max = 200)
+  )
+  return(neighborhood_data)
+}
+
+```
+
+## Flood Function
+
+```{r}
+#' Cumulative risk of flooding, social vulnerability, and lack of insurance coverage
+#'
+#' This function determines how vulnerable a given city is to flooding and how vulnerable they are socially, which impacts their ability to mitigate/recover from flood impacts
+#' @param flood_vulnerability a score between 0-1 calculated based on environmental variables
+#' @param social_vulnerabilityt a score between 0-1 caluclated based on socioeconomic variables
+#' @param non_coverage_risk a score between 0-1 that reflects an areas risk for not being covered by insurance (insurance retreat)
+#' @return risk index
+#'
+# function definition
+compute_risk_index = function(flood_vulnerability, social_vulnerability, non_coverage_risk){
+  result = ((1/2) * flood_vulnerability) + 
+    ((1/3) * social_vulnerability) + 
+    ((1/6) * non_coverage_risk)
+  return(result)
+}
+
+```
+
+## Social Vulnerability Function
+
+```{r}
+#Function to calculate social vulnerability
+#Inputs:
+#’ @param low_inc = percent of people in a city who are low income
+#’ @param minority = percent of people in a city who are part of a minority group
+#’ @param no_insurance = percent of people in a city who do not have health insurance
+#’ @param renters = percent of people in a city who are renters
+#’ @param elderly = percent of people in a city who are elderly
+#’ @param children = percent of people in a city who are children
+#’ @param disabled = percent of people in a city who have a disability
+#' Output: vulnerability_score
+
+
+
+calculate_vulnerability = function(low_inc, minority, no_insurance, renters, 
+                                   elderly, children, disabled){
+  
+  library(testthat)
+  library(devtools)
+  
+  expect_true(low_inc <= 1 & low_inc >= 0)
+  expect_true(minority <= 1 & minority >= 0)
+  expect_true(no_insurance <= 1 & no_insurance >= 0)
+  expect_true(renters <= 1 & renters >= 0)
+  expect_true(elderly <= 1 & elderly >= 0)
+  expect_true(children <= 1 & children >= 0)
+  expect_true(disabled <= 1 & disabled >= 0)
+  
+  vulnerability_score = (low_inc + minority + no_insurance + renters + elderly
+                         + children + disabled) / 7
+  
+  return(vulnerability_score = vulnerability_score)
+}
+
+```
+
+## Insurance Retreat Function
+
+```{r}
+#' Calculate Insurance Retreat Score
+#' This function calculates insurance retreat risk for each neighborhood using percent nonrenewal, premium increase, and past claims.
+#' insurance retreat score to represent cumulative insurance retreat pressure.
+#' @param neighborhood_data data frame with insurance variables
+#' @return data frame with insurance_retreat_score added
+
+calculate_insurance_retreat_score = function(neighborhood_data) {
+  neighborhood_data$insurance_retreat_score = 0
+  for (n in 1:nrow(neighborhood_data)) {
+    neighborhood_data$insurance_retreat_score[n] =
+      ((0.4) * neighborhood_data$percent_nonrenewal[n]) +
+      ((0.4) * neighborhood_data$premium_increase[n]) +
+      ((0.2) * (neighborhood_data$past_claims[n] / 200))
+  }
+  return(neighborhood_data)
+}
+
+```
+
+## Cumulative Risk Score Function
+
+```{r}
+#' Cumulative risk of flooding, social vulnerability, and lack of insurance coverage
+#'
+#' This function determines how vulnerable a given city is to flooding and how vulnerable they are socially, which impacts their ability to mitigate/recover from flood impacts
+#' @param flood_vulnerability a score between 0-1 calculated based on environmental variables
+#' @param social_vulnerabilityt a score between 0-1 caluclated based on socioeconomic variables
+#' @param non_coverage_risk a score between 0-1 that reflects an areas risk for not being covered by insurance (insurance retreat)
+#' @return risk index
+#'
+# function definition
+compute_risk_index = function(flood_vulnerability, social_vulnerability, non_coverage_risk){
+  result = ((1/2) * flood_vulnerability) + 
+    ((1/3) * social_vulnerability) + 
+    ((1/6) * non_coverage_risk)
+  return(result)
+}
+
+```
+
+# Review of Overall Program Contract
+
+The overall program creates three risk scores and then cumulative risk scores to calculate the environmental justice risks to a given area due to flooding.
+
+The first function is a flood vulnerability index that uses environmental parameters, elevation, distance from the coast, mean annual inches of precipitation, and number of past floods throughout recorded history, to determine a cities risk for flooding in the future.
+
+The second function is a social vulnerability index that uses socioeconomic parameters to assess whether a city is more likely to experience social injustices and disadvantages. The inputs are the percentages of people who are: low income, minority status, lack health insurance, renters, elderly, children, and disabled. The output is a social vulnerability score.
+
+The third function is the risk of lacking flood insurance coverage. This function uses parameters that indicate where insurance companies or insurance users are likely to retreat from coverage such as percent non renewal, premium increases, and amount of past claims.
+
+The outputs of these functions are then used in a function to calculate the cumulative environmental justice risk for flooding in a given area. The three inputs are weighted based on the expected magnitude of their effect on environmental justice. There is one final output which is the overall environmental justice risk.
+
+Data generation function #’ @param n number of rows of data to generate
+
+Generates data for elevation, distance from the coast, mean rain, number of past floods, percentages of people who are: low income, minority status, lack health insurance, renters, elderly, children, and disabled. Percentage of insurance policies not renewed, number of past claims, and the amount that premiums have increased. All the generated data is stored in a data frame.
+
+Output: neighborhood_data
+
+Flood function Inputs: #’ @param elevation a city's elevation (feet) \#' @param distance_coast a city's distance from the ocean (miles) \#' @param mean_rain mean annual rainfall (inches) \#' @param num_past_floods the amount of floods a city has experienced across recorded history
+
+Inputs are weighted, normalized, and added together
+
+Output: Flood_vulnerability
+
+Social vulnerability function Inputs: #’ @param low_inc = percent of people in a city who are low income #’ @param minority = percent of people in a city who are part of a minority group #’ @param no_insurance = percent of people in a city who do not have health insurance #’ @param renters = percent of people in a city who are renters #’ @param elderly = percent of people in a city who are elderly #’ @param children = percent of people in a city who are children #’ @param disabled = percent of people in a city who have a disability
+
+Inputs are added together. Then, the sum is normalized between 0 and 1.
+
+Output: vulnerability_score
+
+Insurance retreat function #’ @param neighborhood_data
+
+Calculates the weighted sum of percent_nonrenewal, premium_increase, and past_claims columns of the neighborhood_data data frame
+
+Output: neighborhood_data\$insurance_retreat_score
