@@ -33,26 +33,3 @@ create_neighborhood_data = function(n = 26) {
   return(neighborhood_data)
 }
 
-#' Calculate Insurance Retreat Score
-#' This function calculates insurance retreat risk using percent nonrenewal,
-#' premium increase, and past claims. The for loop uses the previous row's
-#' insurance retreat score to represent cumulative insurance retreat pressure.
-#' @param neighborhood_data data frame with insurance variables
-#' @return data frame with insurance_retreat_score added
-
-calculate_insurance_retreat_score = function(neighborhood_data) {
-  neighborhood_data$insurance_retreat_score = 0
-  for (n in 1:nrow(neighborhood_data)) {
-    neighborhood_data$insurance_retreat_score[n] =
-      ((0.4) * neighborhood_data$percent_nonrenewal[n]) +
-      ((0.4) * neighborhood_data$premium_increase[n]) +
-      ((0.2) * (neighborhood_data$past_claims[n] / 200))
-  }
-  return(neighborhood_data)
-}
-
-neighborhood_data = create_neighborhood_data()
-
-neighborhood_data = calculate_insurance_retreat_score(neighborhood_data)
-
-head(neighborhood_data)
