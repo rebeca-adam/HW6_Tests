@@ -1,7 +1,7 @@
 library(testthat)
 library(here)
 
-source(here("Insurance Retreat.R"))
+source(here("calculate_Insurance_Retreat.R"))
 
 test_that("insurance retreat score is between 0 and 1", {
   
