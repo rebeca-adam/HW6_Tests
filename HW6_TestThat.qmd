@@ -1,0 +1,92 @@
+---
+title: "HW6_TestThat"
+format: html
+editor: visual
+---
+
+## Description
+
+This document demonstrates how to use the Assignment 5 functions to create sample neighborhood data and calculate flood risk, social vulnerability, insurance retreat risk, and cumulative risk.
+
+```{r}
+## Load Functions
+library(here)
+source(here("Create Neighborhood Data.R"))
+source(here("compute_flood_risk.R"))
+source(here("calculate_vulnerability.R"))
+source(here("calculate_Insurance_Retreat.R"))
+source(here("cumulative_risk_function.R"))
+```
+
+# Example Neighborhood Data
+```{r}
+neighborhood_data <- create_neighborhood_data(n = 10)
+
+head(neighborhood_data)
+```
+
+# Calculating the flood risk 
+
+```{r}
+neighborhood_data$flood_risk <- compute_flood_risk(
+  elevation = neighborhood_data$elevation,
+  distance_coast = neighborhood_data$distance_coast,
+  mean_rain = neighborhood_data$mean_rain,
+  num_past_floods = neighborhood_data$num_past_floods
+)
+
+head(neighborhood_data)
+```
+
+# Calculating the Social Vulnerability
+
+
+```{r}
+neighborhood_data$vulnerability_score <- calculate_vulnerability(
+  low_inc = neighborhood_data$low_inc,
+  minority = neighborhood_data$minority,
+  no_insurance = neighborhood_data$no_insurance,
+  renters = neighborhood_data$renters,
+  elderly = neighborhood_data$elderly,
+  children = neighborhood_data$children,
+  disabled = neighborhood_data$disabled
+)
+
+head(neighborhood_data)
+```
+
+# Calculating Insurance Retreat Score
+
+```{r}
+neighborhood_data <- calculate_insurance_retreat_score(neighborhood_data)
+
+head(neighborhood_data)
+```
+
+# Calculate Cumulative Risk
+
+```{r}
+neighborhood_data$cumulative_risk_index <- compute_risk_index(
+  flood_vulnerability = neighborhood_data$flood_risk,
+  social_vulnerability = neighborhood_data$vulnerability_score,
+  non_coverage_risk = neighborhood_data$insurance_retreat_score
+)
+
+head(neighborhood_data)
+```
+
+# The Final Output
+
+```{r}
+final_output <- neighborhood_data[
+  c("city", "flood_risk", "vulnerability_score",
+    "insurance_retreat_score", "cumulative_risk_index")
+]
+
+final_output
+```
+
+# Explanation
+This example shows how all five of the Assignment 5 modules can be used together to assess flood/social vulnerability at the neighborhood level. First, sample neighborhood data is generated using create_neighborhood_data(). Then, flood risk, social vulnerability, and insurance retreat score are calculated separately, but require inputs from the following modules to run accordingly. Finally, each metric is combined into a cumulative risk index through the compute_risk_index() function. This provides a measure if the overall neighborhood risk!
+
+
