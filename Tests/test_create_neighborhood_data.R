@@ -1,4 +1,7 @@
 library(testthat)
+library(here)
+
+source(here("Create Neighborhood Data.R"))
 
 test_that(
   "create_neighborhood_data_errors_work",{
