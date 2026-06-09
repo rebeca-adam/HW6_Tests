@@ -51,5 +51,3 @@ expect_true(higher_risk > lower_risk)
 }) 
 
 
-print(lower_risk)
-print(higher_risk)
